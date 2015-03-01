@@ -1,13 +1,27 @@
 from __future__ import division
 from string import punctuation
+import json
 
-# Preprocessing tweets
-tweets = open("obama_tweets.txt").read()
-tweets_list = tweets.split('\n')
-for t in tweets_list:
-    t = t.lower()
+# Recovering and preprocessing tweets
+
+# This is commented out, don't remove, needed to document steps taken
+# tweets = open("obama_tweets.txt").read()
+
+# Json loader bugs with very large files. Therefore, we will parse it line
+# by line. Don't try to use load() to gain space, it won't work.
+
+tweets = []
+with open("tweets", "r") as parsed_tweets:
+    for line in parsed_tweets:
+        # So far we just need the text. 
+        tweets.append(json.loads(line)['text'])
+
+# Standardizing tweets to enhance detection rate
+tweets = [t.lower() for t in tweets]
 for p in punctuation:
-    tweets_list = [t.replace(p, '') for t in tweets_list]
+    tweets = [t.replace(p, '') for t in tweets]
+
+print tweets
 
 # Setting up lists to check whether a file is good or not
 with open("positive.txt", "r") as pos:
@@ -16,10 +30,8 @@ with open("positive.txt", "r") as pos:
 with open("negative.txt", "r") as neg:
     negative_words = neg.read().splitlines()
 
-
-
 # Processing tweets
-for tweet in tweets_list:
+for tweet in tweets:
     positive_counter, negative_counter = 0, 0
 
     words = tweet.split(' ')
