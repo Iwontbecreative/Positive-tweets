@@ -16,4 +16,14 @@ consumer_secret = "RBbTqIJbfXzmM1eC7P9z3czR041rtu9N7ZrU3NAQAJCa5GhB5c"
 
 # We want to use Streeaming Api to send to a file. Instead of printing
 # directly to StdOut and then redirecting thanks to > to a text file, we want
-# 
+# to write it to a text file directly from python so there are no issues with
+# Windows users.
+class Listener(StreamListener):
+    def write_data(self, data):
+	with open('tweets', 'a') as tweets:
+            tweets.write(data)
+
+    def write_error(self, status):
+        "We do want to write errors to StdOut as it easier to see them."
+        print status
+
