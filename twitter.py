@@ -1,50 +1,32 @@
-import urllib, csv
+from __future__ import division
 from string import punctuation
 
-
-files=['negative.txt','positive.txt','obama_tweets.txt']
-
-path='http://www.unc.edu/~ncaren/haphazard/'
-for file_name in files:
-    urllib.urlretrieve(path+file_name,file_name)
-
-
+# Preprocessing tweets
 tweets = open("obama_tweets.txt").read()
 tweets_list = tweets.split('\n')
+for t in tweets_list:
+    t = t.lower()
+for p in punctuation:
+    tweets_list = [t.replace(p, '') for t in tweets_list]
 
+# Setting up lists to check whether a file is good or not
 pos_sent = open("positive.txt").read()
-positive_words=pos_sent.split('\n')
-positive_counts=[]
+positive_words = pos_sent.split('\n')
 
 neg_sent = open('negative.txt').read()
-negative_words=neg_sent.split('\n')
-negative_counts=[]
+negative_words = neg_sent.split('\n')
 
 
+
+# Processing tweets
 for tweet in tweets_list:
-    positive_counter=0
-    negative_counter=0
-    
-    tweet_processed=tweet.lower()
-    
-    
-    for p in list(punctuation):
-        tweet_processed=tweet_processed.replace(p,'')
+    positive_counter, negative_counter = 0, 0
 
-    words=tweet_processed.split(' ')
-    word_count=len(words)
+    words = tweet.split(' ')
     for word in words:
         if word in positive_words:
-            positive_counter=positive_counter+1
+            positive_counter += 1
         elif word in negative_words:
-            negative_counter=negative_counter+1
-        
-    positive_counts.append(positive_counter/word_count)
-    negative_counts.append(negative_counter/word_count)
+            negative_counter += 1
 
-print len(positive_counts)
-
-output=zip(tweets_list,positive_counts,negative_counts)
-
-writer = csv.writer(open('tweet_sentiment.csv', 'wb'))
-writer.writerows(output)
+    print positive_counter/len(words), ' ', negative_counter/len(words)
