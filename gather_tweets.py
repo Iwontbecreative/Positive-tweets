@@ -2,10 +2,7 @@
 it to a file using StreamingApi, as we are yet conducting real-time analysis.
 Inspiration : http://adilmoujahid.com/posts/2014/07/twitter-analytics/ """
 
-# Import the necessary methods from tweepy library
-from tweepy.streaming import StreamListener
-from tweepy import OAuthHandler
-from tweepy import Stream
+import tweepy
 
 # Variables that contains the user credentials to access Twitter API
 # This is private info, should not be used against me
@@ -26,20 +23,18 @@ keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
 # Windows users.
 
 
-class Listener(StreamListener):
+class Listener(tweepy.StreamListener):
 
     def on_data(self, data):
         with open('tweets', 'a') as tweets:
-            # tweets.write(data)
-            print data
+            tweets.write(data)
 
     def on_error(self, status):
         "We do want to write errors to StdOut as it easier to see them."
         print status
 
-if __name__ == '__main__':
-    l = Listener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, l)
-    stream.filter(track=keywords) 
+l = Listener()
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+stream = tweepy.Stream(auth=auth, listener=l) 
+stream.filter(track=keywords) 
