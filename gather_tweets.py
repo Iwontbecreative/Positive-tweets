@@ -12,10 +12,10 @@ consumer_key = "8R5XvwFGKmKm5Sdr73PUNVyMF"
 consumer_secret = "RBbTqIJbfXzmM1eC7P9z3czR041rtu9N7ZrU3NAQAJCa5GhB5c"
 
 # This is the list of words we want to follow. As we are focusing on big data
-# those are related to that field. 
-# TODO Find a way to automatically generate it. 
+# those are related to that field.
+# TODO Find a way to automatically generate it.
 keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
-'data mining', 'open data', 'MapReduce', 'NoSQL']
+            'data mining', 'open data', 'MapReduce', 'NoSQL']
 
 # We want to use Streeaming Api to send to a file. Instead of printing
 # directly to StdOut and then redirecting thanks to > to a text file, we want
@@ -36,5 +36,5 @@ class Listener(tweepy.StreamListener):
 l = Listener()
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
-stream = tweepy.Stream(auth=auth, listener=l) 
-stream.filter(track=keywords) 
+stream = tweepy.Stream(auth=auth, listener=l)
+stream.filter(track=keywords)

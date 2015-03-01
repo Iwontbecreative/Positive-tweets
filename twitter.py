@@ -13,7 +13,7 @@ import json
 tweets = []
 with open("tweets", "r") as parsed_tweets:
     for line in parsed_tweets:
-        # So far we just need the text. 
+        # So far we just need the text.
         tweets.append(json.loads(line)['text'])
 
 # Standardizing tweets to enhance detection rate
