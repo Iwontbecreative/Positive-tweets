@@ -10,11 +10,11 @@ for p in punctuation:
     tweets_list = [t.replace(p, '') for t in tweets_list]
 
 # Setting up lists to check whether a file is good or not
-pos_sent = open("positive.txt").read()
-positive_words = pos_sent.split('\n')
+with open("positive.txt", "r") as pos:
+    positive_words = pos.read().splitlines()
 
-neg_sent = open('negative.txt').read()
-negative_words = neg_sent.split('\n')
+with open("negative.txt", "r") as neg:
+    negative_words = neg.read().splitlines()
 
 
 
