@@ -4,6 +4,7 @@ Inspiration : http://adilmoujahid.com/posts/2014/07/twitter-analytics/ """
 
 import tweepy
 import credentials as c
+import sys
 
 # This is the list of words we want to follow. As we are focusing on big data
 # those are related to that field.
@@ -18,20 +19,29 @@ keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
 
 class Listener(tweepy.StreamListener):
 
+    i = 0  
+    def __init__(self, output_file, number):
+        self.file = output_file
+        self.number = number
+
     def on_data(self, data):
-        with open('test', 'a') as tweets:
-            tweets.write(data)
+        if self.i < self.number:
+            self.i += 1
+            with open(self.file, 'a') as tweets:
+                tweets.write(data)
+        else:
+            #FIXME : Ugly.
+            sys.exit(0)
 
     def on_error(self, status):
         "We do want to write errors to StdOut as it easier to see them."
         print status
 
-#FIXME : Implement number limit. 
-def get_tweets(number, keywords):
+def get_tweets(keywords, number=1000, output_file='tweets'):
     """"
     This recovers number tweets which contains one of keywords.
     """
-    l = Listener()
+    l = Listener(output_file, number)
     auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
     auth.set_access_token(c.access_token, c.access_token_secret)
     stream = tweepy.Stream(auth=auth, listener=l)
@@ -39,4 +49,4 @@ def get_tweets(number, keywords):
 
 # Just a generic call to get_tweets for testing purposes
 if __name__ == '__main__':
-    get_tweets(2, keywords)
+    get_tweets(keywords, 10, 'test')
