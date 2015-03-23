@@ -3,13 +3,7 @@ it to a file using StreamingApi, as we are yet conducting real-time analysis.
 Inspiration : http://adilmoujahid.com/posts/2014/07/twitter-analytics/ """
 
 import tweepy
-
-# Variables that contains the user credentials to access Twitter API
-# This is private info, should not be used against me
-access_token = "3013515967-8zWpVd26XIoYw7B0JttqiX01MkEmc3jarGFQsCX"
-access_token_secret = "LZVguFlA60pGEwdLn97xgZkmWID5aYfnmw51FlajCwTYc"
-consumer_key = "8R5XvwFGKmKm5Sdr73PUNVyMF"
-consumer_secret = "RBbTqIJbfXzmM1eC7P9z3czR041rtu9N7ZrU3NAQAJCa5GhB5c"
+import credentials as c
 
 # This is the list of words we want to follow. As we are focusing on big data
 # those are related to that field.
@@ -17,24 +11,32 @@ consumer_secret = "RBbTqIJbfXzmM1eC7P9z3czR041rtu9N7ZrU3NAQAJCa5GhB5c"
 keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
             'data mining', 'open data', 'MapReduce', 'NoSQL']
 
-# We want to use Streeaming Api to send to a file. Instead of printing
+# We want to use Streaming Api to send to a file. Instead of printing
 # directly to StdOut and then redirecting thanks to > to a text file, we want
 # to write it to a text file directly from python so there are no issues with
 # Windows users.
 
-
 class Listener(tweepy.StreamListener):
 
     def on_data(self, data):
-        with open('tweets', 'a') as tweets:
+        with open('test', 'a') as tweets:
             tweets.write(data)
 
     def on_error(self, status):
         "We do want to write errors to StdOut as it easier to see them."
         print status
 
-l = Listener()
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-stream = tweepy.Stream(auth=auth, listener=l)
-stream.filter(track=keywords)
+#FIXME : Implement number limit. 
+def get_tweets(number, keywords):
+    """"
+    This recovers number tweets which contains one of keywords.
+    """
+    l = Listener()
+    auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
+    auth.set_access_token(c.access_token, c.access_token_secret)
+    stream = tweepy.Stream(auth=auth, listener=l)
+    stream.filter(track=keywords)
+
+# Just a generic call to get_tweets for testing purposes
+if __name__ == '__main__':
+    get_tweets(2, keywords)
