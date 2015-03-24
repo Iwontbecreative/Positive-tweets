@@ -12,19 +12,21 @@ def preprocess(tweet):
     """
     tweet = tweet.lower()
     for p in punctuation:
-        tweet = tweet.replace(p, '')
+        tweet = tweet.replace(p, "")
     return tweet
 
 # Json loader bugs with very large files. Therefore, we will parse it line
 # by line. Don't try to use load() to gain space, it won't work.
+def parse(filename):
+    with open(filename, "r") as json_tweets:
+        for line in json_tweets:
+            # Need to save it to avoid calling json.loads twice
+            tweet = json.loads(line)
+            tweets.append(tweet['text'])
+            authors.append(tweet['user']['id'])
 
-with open("test", "r") as parsed_tweets:
-    for line in parsed_tweets:
-        # Need to save it to avoid calling json.loads twice
-        tweet = json.loads(line)
-        tweets.append(tweet['text'])
-        authors.append(tweet['user']['id'])
 
+parse("test")
 tweets = [preprocess(t) for t in tweets]
 
 # Setting up lists to check whether a file is good or not
