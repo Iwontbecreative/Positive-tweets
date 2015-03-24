@@ -17,9 +17,14 @@ keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
 # to write it to a text file directly from python so there are no issues with
 # Windows users.
 
-class Listener(tweepy.StreamListener):
 
-    i = 0  
+class Listener(tweepy.StreamListener):
+    """
+    This is a listener modified to stop after registering a certain number
+    of tweets.
+    """
+    i = 0
+
     def __init__(self, output_file, number):
         self.file = output_file
         self.number = number
@@ -30,12 +35,13 @@ class Listener(tweepy.StreamListener):
             with open(self.file, 'a') as tweets:
                 tweets.write(data)
         else:
-            #FIXME : Ugly.
+            # FIXME : Ugly.
             sys.exit(0)
 
     def on_error(self, status):
         "We do want to write errors to StdOut as it easier to see them."
         print status
+
 
 def get_tweets(keywords, number=1000, output_file='tweets'):
     """"
