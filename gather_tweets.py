@@ -43,16 +43,23 @@ class Listener(tweepy.StreamListener):
         print status
 
 
-def get_tweets(keywords, number=1000, output_file='tweets'):
+def setup_auth():
+    """
+    Dummy function to avoid importing credentials everytime
+    """
+    auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
+    auth.set_access_token(c.access_token, c.access_token_secret)
+    return auth
+
+
+def scan_tweets(keywords, number=1000, output_file='tweets'):
     """"
     This recovers number tweets which contains one of keywords.
     """
     l = Listener(output_file, number)
-    auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
-    auth.set_access_token(c.access_token, c.access_token_secret)
-    stream = tweepy.Stream(auth=auth, listener=l)
+    stream = tweepy.Stream(auth=setup_auth(), listener=l)
     stream.filter(track=keywords)
 
 # Just a generic call to get_tweets for testing purposes
 if __name__ == '__main__':
-    get_tweets(keywords, 10, 'test')
+    scan_tweets(keywords, 10, 'test')
