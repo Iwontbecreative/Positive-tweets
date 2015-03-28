@@ -3,17 +3,13 @@ This tool finds tweets about our topic then ensures using twitter.py that
 the person who wrote it is a prospect.
 Inspiration : http://adilmoujahid.com/posts/2014/07/twitter-analytics/ """
 
-import tweepy
 import sys
 import json
+import argparse
+
+import tweepy
+
 import twitter
-
-# This is the list of words we want to follow. As we are focusing on big data
-# those are related to that field.
-# TODO Should be customisable.
-keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
-            'data mining', 'open data', 'MapReduce', 'NoSQL']
-
 
 
 class Listener(tweepy.StreamListener):
@@ -62,4 +58,15 @@ def scan_tweets(keywords, number=1000, output_file='tweets'):
 
 # Just a generic call to get_tweets for testing purposes
 if __name__ == '__main__':
-    scan_tweets(keywords, 10)
+    keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
+            'data mining', 'open data', 'MapReduce', 'NoSQL']
+    parser = argparse.ArgumentParser(description="This is a twitter-based prospect finder tool")
+    parser.add_argument('-k', '--keywords', dest='keywords',
+            help='Keywords that we should scan twitter for.')
+    parser.add_argument('-t', '--tweet-number', default=20, dest='number',
+            help='How many tweets we should scan before stopping')
+    args = parser.parse_args()
+    if args.keywords:
+        keywords = args.keywords.split(', ')
+    number = int(args.number)
+    scan_tweets(keywords, number)
