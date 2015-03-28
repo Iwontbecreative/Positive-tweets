@@ -1,21 +1,19 @@
-""" The goal of this tool is to gather tweets for analysis. This will send
-it to a file using StreamingApi, as we are yet conducting real-time analysis.
+""" The goal of this tool is to generate a list of prospects.
+This tool finds tweets about our topic then ensures using twitter.py that
+the person who wrote it is a prospect.
 Inspiration : http://adilmoujahid.com/posts/2014/07/twitter-analytics/ """
 
 import tweepy
-import credentials as c
 import sys
+import json
+import twitter
 
 # This is the list of words we want to follow. As we are focusing on big data
 # those are related to that field.
-# TODO Find a way to automatically generate it.
+# TODO Should be customisable.
 keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
             'data mining', 'open data', 'MapReduce', 'NoSQL']
 
-# We want to use Streaming Api to send to a file. Instead of printing
-# directly to StdOut and then redirecting thanks to > to a text file, we want
-# to write it to a text file directly from python so there are no issues with
-# Windows users.
 
 
 class Listener(tweepy.StreamListener):
@@ -31,25 +29,20 @@ class Listener(tweepy.StreamListener):
 
     def on_data(self, data):
         if self.i < self.number:
+            tweet = json.loads(str(data))
             self.i += 1
-            with open(self.file, 'a') as tweets:
-                tweets.write(data)
+            id = tweet['user']['id']
+            if twitter.check_pos(tweet['text']):
+                if twitter.is_prospect(id, keywords):
+                    twitter.follow(id)
         else:
             # FIXME : Ugly.
+            print(self.i)
             sys.exit(0)
 
     def on_error(self, status):
         "We do want to write errors to StdOut as it easier to see them."
-        print status
-
-
-def setup_auth():
-    """
-    Dummy function to avoid importing credentials everytime
-    """
-    auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
-    auth.set_access_token(c.access_token, c.access_token_secret)
-    return auth
+        print(status)
 
 
 def scan_tweets(keywords, number=1000, output_file='tweets'):
@@ -57,9 +50,9 @@ def scan_tweets(keywords, number=1000, output_file='tweets'):
     This recovers number tweets which contains one of keywords.
     """
     l = Listener(output_file, number)
-    stream = tweepy.Stream(auth=setup_auth(), listener=l)
+    stream = tweepy.Stream(auth=twitter.setup_auth(), listener=l)
     stream.filter(track=keywords)
 
 # Just a generic call to get_tweets for testing purposes
 if __name__ == '__main__':
-    scan_tweets(keywords, 10, 'test')
+    scan_tweets(keywords, 10, 'test2')
