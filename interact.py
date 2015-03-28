@@ -3,8 +3,8 @@ interact.py : Get followers through retweeting and favs.
 """
 
 import tweepy
-import credentials as cred
 import json
+import twitter
 
 def choose_tweet(api, id):
     """
@@ -17,7 +17,5 @@ def choose_tweet(api, id):
             return t.id
 
 if __name__ == '__main__':
-    auth = tweepy.OAuthHandler(cred.consumer_key, cred.consumer_secret)
-    auth.set_access_token(cred.access_token, cred.access_token_secret)
-    api = tweepy.API(auth)
+    api = tweepy.API(twitter.setup_auth())
     #api.retweet(choose_tweet(api, 2777103822))
