@@ -11,7 +11,6 @@ def choose_tweet(api, id):
     Given some userid, choose which tweet should be acted upon. To do that,
     chose the tweet Twitter users liked the most."""
     tweets = api.user_timeline(user_id=id)
-    print tweets
     most_popular = max(t.retweet_count + t.favorite_count for t in tweets)
     for t in tweets:
         if t.retweet_count + t.favorite_count == most_popular:

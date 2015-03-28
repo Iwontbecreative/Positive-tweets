@@ -6,8 +6,15 @@ negative about a topic.
 from __future__ import division
 from string import punctuation
 import tweepy
-from gather_tweets import keywords
 import credentials as c
+
+
+# Setting up lists to check whether a word is good or not
+with open("positive.txt", "r") as pos:
+    positive_words = pos.read().splitlines()
+
+with open("negative.txt", "r") as neg:
+    negative_words = neg.read().splitlines()
 
 
 def preprocess(tweet):
@@ -18,14 +25,6 @@ def preprocess(tweet):
     for p in punctuation:
         tweet = tweet.replace(p, "")
     return tweet
-
-def setup_auth():
-    """
-    Dummy function to avoid importing credentials everytime
-    """
-    auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
-    auth.set_access_token(c.access_token, c.access_token_secret)
-    return auth
 
 def check_pos(tweet):
     """Checks whether a tweet is positive or not."""
@@ -40,22 +39,31 @@ def check_pos(tweet):
     if positive_counter > negative_counter:
         return True
 
-def is_prospect(author, topic, about_topic=0.1):
+def setup_auth():
+    """
+    Dummy function to avoid importing credentials everytime
+    """
+    auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
+    auth.set_access_token(c.access_token, c.access_token_secret)
+    return auth
+
+
+def is_prospect(author, topic, about_topic=0.05):
+    """
+    Checks whether enough (about_topic) of author tweets are about topic.
+    """
     api = tweepy.API(setup_auth())
     try:
         tweets = [t.text for t in api.user_timeline(user_id=author, count=100)]
     except TweepError:
         print("Too many requests")
         return
-    print('I got called')
-    print(tweets)
-    print(len([True for t in tweets if any(True for k in topic if k in preprocess(t))]), about_topic * len(tweets))
+    # Checks whether enough tweets are about our topic. 0.05 means at least 5%
     return len([True for t in tweets if any(True for k in topic if k in preprocess(t))]) > about_topic * len(tweets)
 
-
-# Setting up lists to check whether a word is good or not
-with open("positive.txt", "r") as pos:
-    positive_words = pos.read().splitlines()
-
-with open("negative.txt", "r") as neg:
-    negative_words = neg.read().splitlines()
+def follow(id):
+    """
+    Follows the id user on Twitter.
+    """
+    api = tweepy.API(setup_auth())
+    api.create_friendship(user_id=id)
