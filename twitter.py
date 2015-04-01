@@ -61,9 +61,9 @@ def is_prospect(author, topic, about_topic=0.05):
     # Checks whether enough tweets are about our topic. 0.05 means at least 5%
     return len([True for t in tweets if any(True for k in topic if k in preprocess(t))]) > about_topic * len(tweets)
 
-def follow(id):
+def follow(author_id):
     """
     Follows the id user on Twitter.
     """
     api = tweepy.API(setup_auth())
-    api.create_friendship(user_id=id)
+    api.create_friendship(user_id=author_id)
