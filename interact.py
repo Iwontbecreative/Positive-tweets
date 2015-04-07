@@ -11,7 +11,7 @@ def choose_tweet(api, id):
     """
     Given some userid, choose which tweet should be acted upon. To do that,
     chose the tweet Twitter users liked the most."""
-    # Count = 10 to avoid retweeting too old things so we're less robot-like
+    # Count = 10 to avoid retweeting old things so we're less robot-like
     tweets = api.user_timeline(user_id=id, count=10)
     most_popular = max(t.retweet_count + t.favorite_count for t in tweets)
     for t in tweets:
@@ -20,14 +20,24 @@ def choose_tweet(api, id):
 
 def pick_prospect(api):
     """
-    Chooses a prospect to interact with.
+    So far we just choose at random.
+    """
+    return random.choice(get_prospect_list(api, False))
+
+def get_prospect_list(api=None, refresh=False):
+    """Builds a list of prospects from Twitter if refresh, else uses the cached one.
     This is our id : 3130995473.
     Twitter's doc states that we will receive last followed people first, but
     that this behaviour is subject to change.
-    For now we chose at random.
     """
-    friends = api.friends_ids(user_id=3130995473)
-    return random.choice(friends)
+    if refresh:
+        import os
+        os.remove('prospects')
+        friends = api.friends_ids(user_id=3130995473)
+        with open('prospects', 'w') as prospects:
+            prospects.write("\n".join(str(f) for f in friends))
+    with open('prospects', 'r') as prospects:
+        return prospects.read().split('\n')
 
 def random_action(api):
     """
