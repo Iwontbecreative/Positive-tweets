@@ -6,6 +6,7 @@ Some functions here are also simply helpers to check our twitter account.
 import tweepy
 import twitter
 import random
+import os
 
 def choose_tweet(api, id):
     """
@@ -31,7 +32,6 @@ def get_prospect_list(api=None, refresh=False):
     that this behaviour is subject to change.
     """
     if refresh:
-        import os
         os.remove('prospects')
         friends = api.friends_ids(user_id=3130995473)
         with open('prospects', 'w') as prospects:
@@ -47,4 +47,7 @@ def random_action(api):
 
 if __name__ == '__main__':
     api = tweepy.API(twitter.setup_auth())
-    random_action(api)(choose_tweet(api, pick_prospect(api)))
+    for i in range(7):
+        tweet_id = choose_tweet(api, pick_prospect(api))
+        #FIXME: Understand why sometimes next line throws a 403.
+        random_action(api)(tweet_id)

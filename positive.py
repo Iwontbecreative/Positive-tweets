@@ -48,17 +48,20 @@ def setup_auth():
     return auth
 
 
-def is_prospect(author, topic, about_topic=0.05):
+def is_prospect(author, topic, about_topic=0.1):
     """
     Checks whether enough (about_topic) of author tweets are about topic.
     """
+    # Check that we do not add ourself.
+    if author == 3130995473:
+        return False
     api = tweepy.API(setup_auth())
     try:
-        tweets = [t.text for t in api.user_timeline(user_id=author, count=100)]
+        tweets = [t.text for t in api.user_timeline(user_id=author, count=50)]
     except TweepError:
         print("Too many requests")
-        return
-    # Checks whether enough tweets are about our topic. 0.05 means at least 5%
+        return 
+    # Checks whether enough tweets are about our topic.
     return len([True for t in tweets if any(True for k in topic if k in preprocess(t))]) > about_topic * len(tweets)
 
 def follow(author_id):
