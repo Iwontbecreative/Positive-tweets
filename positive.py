@@ -35,7 +35,6 @@ def check_pos(tweet):
         elif word in negative_words:
             negative_counter += 1
 
-    # FIXME This might be too leniant a definition of a positive tweet
     if positive_counter > negative_counter:
         return True
 
@@ -60,7 +59,7 @@ def is_prospect(author, topic, about_topic=0.1):
         tweets = [t.text for t in api.user_timeline(user_id=author, count=50)]
     except TweepError:
         print("Too many requests")
-        return 
+        return
     # Checks whether enough tweets are about our topic.
     return len([True for t in tweets if any(True for k in topic if k in preprocess(t))]) > about_topic * len(tweets)
 

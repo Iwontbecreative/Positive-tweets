@@ -4,7 +4,7 @@ Some functions here are also simply helpers to check our twitter account.
 """
 
 import tweepy
-import twitter
+import positive
 import random
 import os
 
@@ -46,8 +46,14 @@ def random_action(api):
     return random.choice((api.create_favorite, api.retweet))
 
 if __name__ == '__main__':
-    api = tweepy.API(twitter.setup_auth())
+    api = tweepy.API(positive.setup_auth())
     for i in range(7):
+        print(i)
         tweet_id = choose_tweet(api, pick_prospect(api))
         #FIXME: Understand why sometimes next line throws a 403.
-        random_action(api)(tweet_id)
+        try:
+            a = random_action(api)
+            a(tweet_id)
+        except:
+            print(a, tweet_id)
+            break

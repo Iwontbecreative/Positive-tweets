@@ -9,7 +9,7 @@ import argparse
 
 import tweepy
 
-import twitter
+import positive
 
 
 class Listener(tweepy.StreamListener):
@@ -34,10 +34,10 @@ class Listener(tweepy.StreamListener):
             tweet = json.loads(str(data))
             self.i += 1
             author_id = tweet['user']['id']
-            if twitter.check_pos(tweet['text']):
-                print('%s Went trough first stage' % self.i)
-                if twitter.is_prospect(author_id, keywords):
-                    twitter.follow(author_id)
+            if positive.check_pos(tweet['text']):
+                print('%s Went through first stage' % self.i)
+                if positive.is_prospect(author_id, keywords):
+                    positive.follow(author_id)
                     print('We followed : %s' % author_id)
         else:
             # FIXME : Ugly.
@@ -54,17 +54,17 @@ def scan_tweets(keywords, number=1000, output_file='tweets'):
     This recovers number tweets which contains one of keywords.
     """
     l = Listener(number)
-    stream = tweepy.Stream(auth=twitter.setup_auth(), listener=l)
+    stream = tweepy.Stream(auth=positive.setup_auth(), listener=l)
     stream.filter(track=keywords)
 
 if __name__ == '__main__':
     keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
-            'data mining', 'open data', 'mapreduce', 'nosql']
+                'data mining', 'open data', 'mapreduce', 'nosql']
     parser = argparse.ArgumentParser(description="This is a twitter-based prospect finder tool")
     parser.add_argument('-k', '--keywords', dest='keywords',
-            help='Keywords that we should scan twitter for.')
+                        help='Keywords that we should scan twitter for.')
     parser.add_argument('-t', '--tweet-number', default=20, dest='number',
-            help='How many tweets we should scan before stopping')
+                        help='How many tweets we should scan before stopping')
     args = parser.parse_args()
     if args.keywords:
         keywords = args.keywords.split(', ')
