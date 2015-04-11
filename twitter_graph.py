@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import interact
 import tweepy
 import positive
+from credentials import our_id
 
 
 def construct_nodes():
@@ -25,7 +26,7 @@ def construct_edges():
     Get the list of people who follow us.
     """
     api = tweepy.API(positive.setup_auth())
-    return ([(i, 3130995473) for i in api.followers_ids(user_id=3130995473)])
+    return ([(i, our_id) for i in api.followers_ids(user_id=our_id)])
 
 
 prospect_map = nx.DiGraph()

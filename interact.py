@@ -7,6 +7,7 @@ import tweepy
 import positive
 import random
 import os
+from credentials import our_id
 
 def choose_tweet(api, id):
     """
@@ -33,7 +34,7 @@ def get_prospect_list(api=None, refresh=False):
     """
     if refresh:
         os.remove('prospects')
-        friends = api.friends_ids(user_id=3130995473)
+        friends = api.friends_ids(user_id=our_id)
         with open('prospects', 'w') as prospects:
             prospects.write("\n".join(str(f) for f in friends))
     with open('prospects', 'r') as prospects:
