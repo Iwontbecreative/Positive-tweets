@@ -17,7 +17,7 @@ def choose_tweet(api, id, keywords):
     chose the tweet Twitter users liked the most.
     """
     tweets = api.user_timeline(user_id=id, count=15)
-    topic_tweets = [t for t in tweets if any(True for k in keywords if k in positive.preprocess(t.text))]
+    topic_tweets = [t for t in tweets if positive.check_on_topic(t, keywords)]
     if topic_tweets:
         most_popular = max(t.retweet_count + t.favorite_count for t in topic_tweets)
         for t in tweets:

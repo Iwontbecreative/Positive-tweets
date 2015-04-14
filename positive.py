@@ -1,6 +1,6 @@
 """
-Those are functions that use REST api to check users timelines and add them and check whether text is positive or
-negative about a topic.
+Those are functions that use REST api to check users timelines and add
+them and check whether text is positive or negative about a topic.
 """
 
 from __future__ import division
@@ -25,6 +25,14 @@ def preprocess(tweet):
         tweet = tweet.replace(p, "")
     return tweet
 
+
+def check_on_topic(tweet, keywords):
+    """
+    Checks whether some text is on the right topic
+    """
+    return any(True for k in keywords if k in preprocess(tweet))
+
+
 def check_pos(tweet):
     """Checks whether a tweet is positive or not."""
     positive_counter, negative_counter = 0, 0
@@ -36,6 +44,7 @@ def check_pos(tweet):
 
     if positive_counter > negative_counter:
         return True
+
 
 def setup_auth():
     """
@@ -55,14 +64,13 @@ def is_prospect(author, topic, about_topic=0.15):
     api = tweepy.API(setup_auth())
     try:
         tweets = [t.text for t in api.user_timeline(user_id=author, count=50)]
-    except TweepError:
+    except tweepy.error.TweepError:
         print("Too many requests")
         return
     # Checks whether enough tweets are about our topic.
     # This is quite stringent : only about 5% of authors pass this stage
-    # but this behaviour allows us to retweet/faborite quite freely without
-    # even checking tweets contents and having mostly positives.
-    return len([True for t in tweets if any(True for k in topic if k in preprocess(t))]) > about_topic * len(tweets)
+    return len([True for t in tweets if check_on_topic(t, topic)]) > about_topic * len(tweets)
+
 
 def follow(author_id):
     """

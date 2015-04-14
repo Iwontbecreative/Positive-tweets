@@ -22,6 +22,7 @@ class prospect_map(nx.DiGraph):
         nx.DiGraph.__init__(self)
         # We add ourself to simplify things.
         self.followed = set(api.friends_ids() + [our_id])
+        # Fixme : Find a workaround for when we have more than 200 of either
         self.favorited = set(i.user.id for i in api.favorites(count=200)) & self.followed
         self.retweeted = set(i.user.id for i in api.home_timeline(count=200)) & self.followed
         self.followers = set(api.followers_ids()) & self.followed
@@ -29,7 +30,7 @@ class prospect_map(nx.DiGraph):
     def construct_nodes(self):
         """
         Nodes will be different depending on the interactions
-        -> Users we just followed    -> f
+        -> Users we just followed -> f
         -> Users we interacted with and did not follow us -> fi
         -> Users we did not interact with and that followed us -> ff
         -> Users we interacted with and that followed us. -> ffi
