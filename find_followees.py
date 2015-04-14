@@ -29,7 +29,6 @@ class Listener(tweepy.StreamListener):
         """
         While we did not process number tweets, recover tweets about our topic
         and adds those tweets' writers who are prospects."""
-        # While we still have tweets to check.
         if self.i < self.number:
             tweet = json.loads(str(data))
             self.i += 1

@@ -9,7 +9,6 @@ import tweepy
 import credentials as c
 from credentials import our_id
 
-# Setting up lists to check whether a word is good or not
 with open("positive.txt", "r") as pos:
     positive_words = pos.read().splitlines()
 
@@ -47,11 +46,10 @@ def setup_auth():
     return auth
 
 
-def is_prospect(author, topic, about_topic=0.1):
+def is_prospect(author, topic, about_topic=0.15):
     """
     Checks whether enough (about_topic) of author tweets are about topic.
     """
-    # Check that we do not add ourself.
     if author == our_id:
         return False
     api = tweepy.API(setup_auth())
@@ -61,7 +59,7 @@ def is_prospect(author, topic, about_topic=0.1):
         print("Too many requests")
         return
     # Checks whether enough tweets are about our topic.
-    # This is quite stringent : only about 1 to 2% of authors pass this stage
+    # This is quite stringent : only about 5% of authors pass this stage
     # but this behaviour allows us to retweet/faborite quite freely without
     # even checking tweets contents and having mostly positives.
     return len([True for t in tweets if any(True for k in topic if k in preprocess(t))]) > about_topic * len(tweets)

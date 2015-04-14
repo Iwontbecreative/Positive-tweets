@@ -38,7 +38,7 @@ def get_prospect_list(api=None, refresh=False):
         with open('prospects', 'w') as prospects:
             prospects.write("\n".join(str(f) for f in friends))
     with open('prospects', 'r') as prospects:
-        return prospects.read().split('\n')
+        return [int(i) for i in prospects.read().split('\n')]
 
 def random_action(api):
     """
