@@ -10,6 +10,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import tweepy
 import positive
+import datetime
 from credentials import our_id
 
 
@@ -18,13 +19,24 @@ class prospect_map(nx.DiGraph):
     A graph of prospects. Even if we retweet stuff from other people or that
     people we did not add added us, we do not wish to represent those.
     """
-    def __init__(self, api):
+    def __init__(self, api, workaround):
         nx.DiGraph.__init__(self)
-        # We add ourself to simplify things.
-        self.followed = set(api.friends_ids() + [our_id])
+        self.followed = set(api.friends_ids())
         # Fixme : Find a workaround for when we have more than 200 of either
-        self.favorited = set(i.user.id for i in api.favorites(count=200)) & self.followed
-        self.retweeted = set(i.user.id for i in api.home_timeline(count=200)) & self.followed
+        # Favorites come in batches of 200 and so do retweets. To get all of
+        # them, here is a dirty hack : we say how many times 200 we have of
+        # of each...
+        # FIXME : ^
+        fav = api.favorites(count=200)
+        ret = api.home_timeline(count=200)
+        for i in range(workaround-1):
+            oldest_fav = min(f.id for f in fav)
+            oldest_ret = min(r.id for r in ret)
+            fav += api.favorites(count=200, max_id=oldest_fav)
+            ret += api.home_timeline(count=200, max_id=oldest_ret)
+
+        self.favorited = set(i.user.id for i in fav) & self.followed
+        self.retweeted = set(i.user.id for i in ret) & self.followed
         self.followers = set(api.followers_ids()) & self.followed
 
     def construct_nodes(self):
@@ -44,6 +56,10 @@ class prospect_map(nx.DiGraph):
         print(len(f), len(fi), len(ff), len(ffi))
 
         self.pos = nx.circular_layout(self)
+        # We center ourself, it's prettier.
+        self.pos[our_id] = (0.5, 0.5)
+        nx.draw_networkx_nodes(self, self.pos, nodelist=[our_id], 
+                               node_size=250, node_color='#0000ff')
 
         nx.draw_networkx_nodes(self, self.pos, nodelist=f, labels=False,
                                node_size=1, node_color='#000000')
@@ -59,13 +75,33 @@ class prospect_map(nx.DiGraph):
         Add links from us to people we interacted with.
         Add links from people to us when they followed us.
         """
-        prospect_map.add_edges_from(self, set((i, our_id) for i in self.followers))
-        prospect_map.add_edges_from(self, set((our_id, i) for i in self.retweeted | self.favorited))
+        prospect_map.add_edges_from(self,
+                                    set((i, our_id) for i in self.followers))
+        prospect_map.add_edges_from(self,
+                                    set((our_id, i) for i in self.retweeted | self.favorited))
         nx.draw_networkx_edges(self, self.pos)
 
-api = tweepy.API(positive.setup_auth())
-pm = prospect_map(api)
-pm.construct_nodes()
-pm.construct_edges()
+    def stats(self):
+        """
+        Give basic info about ourself.
+        """
+        return {'fol': len(self.followed),
+                'fav': len(self.favorited),
+                'ret': len(self.retweeted),
+                'fri': len(self.followers),
+                'folfri': len(self.followed & self.followers)}
 
-plt.show()
+
+if __name__ == '__main__':
+    api = tweepy.API(positive.setup_auth())
+    pm = prospect_map(api, workaround=2)
+    pm.construct_nodes()
+    pm.construct_edges()
+    print(""" We follow {fol} accounts, have {fri} followers,
+          made {ret} retweets and added {fav} tweets to favorites. However,
+          only {folfri} of those friends we befriended first.
+          """.format(**pm.stats()))
+    plt.get_current_fig_manager().resize(1600, 1000)
+
+    now = datetime.datetime.now()
+    plt.savefig('Snapshot at %s.png' % now)
