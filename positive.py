@@ -67,8 +67,8 @@ def is_prospect(author, topic, about_topic=0.15):
     except tweepy.error.TweepError:
         print("Too many requests")
         return
-    # Checks whether enough tweets are about our topic.
-    # This is quite stringent : only about 5% of authors pass this stage
+    # This is quite stringent, only about 5% of users pass the test with our
+    # default keywords
     return len([True for t in tweets if check_on_topic(t, topic)]) > about_topic * len(tweets)
 
 

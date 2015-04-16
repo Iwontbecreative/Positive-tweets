@@ -11,6 +11,10 @@ import tweepy
 
 import positive
 
+keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
+            'data mining', 'open data', 'mapreduce', 'nosql', 'analytics',
+            'mongodb', 'cassandra', 'analytics']
+
 
 class Listener(tweepy.StreamListener):
     """
@@ -57,9 +61,6 @@ def scan_tweets(keywords, number=1000, output_file='tweets'):
     stream.filter(track=keywords)
 
 if __name__ == '__main__':
-    keywords = ['big data', 'machine learning', 'deep learning', 'hadoop',
-                'data mining', 'open data', 'mapreduce', 'nosql', 'analytics',
-                'mongodb', 'cassandra', 'analytics']
     parser = argparse.ArgumentParser(description="This is a twitter-based prospect finder tool")
     parser.add_argument('-k', '--keywords', dest='keywords',
                         help='Keywords that we should scan twitter for.')

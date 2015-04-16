@@ -58,7 +58,7 @@ class prospect_map(nx.DiGraph):
         self.pos = nx.circular_layout(self)
         # We center ourself, it's prettier.
         self.pos[our_id] = (0.5, 0.5)
-        nx.draw_networkx_nodes(self, self.pos, nodelist=[our_id], 
+        nx.draw_networkx_nodes(self, self.pos, nodelist=[our_id],
                                node_size=250, node_color='#0000ff')
 
         nx.draw_networkx_nodes(self, self.pos, nodelist=f, labels=False,
