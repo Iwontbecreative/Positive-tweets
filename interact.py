@@ -9,10 +9,10 @@ from find_followees import keywords
 import random
 import os
 import argparse
-import re
 import lxml.html
 import bitly_api
 from credentials import bitly_token
+
 
 def get_prospect_list(api=None, refresh=False):
     """
@@ -28,39 +28,52 @@ def get_prospect_list(api=None, refresh=False):
     with open('prospects', 'r') as prospects:
         return [int(i) for i in prospects.read().split('\n')]
 
+
 def choose_tweet(api, tweets, keywords):
     """
     Given some userid, choose which tweet should be acted upon. To do that,
     chose the tweet Twitter users liked the most.
     """
-    topic_tweets = [t for t in tweets if positive.check_topic(t.text, keywords)]
+    # The tweet must be about our topic and we only want to retweet/add to fav
+    # content created by users we follow.
+    topic_tweets = [t for t in tweets if positive.check_topic(t.text, keywords) and t.author == t.user]
     if topic_tweets:
         most_popular = max(t.retweet_count + t.favorite_count for t in topic_tweets)
-        for t in tweets:
+        for t in topic_tweets:
             if t.retweet_count + t.favorite_count == most_popular:
                 return t.id
     return
+
 
 def create_tweet(api, bitly, keywords):
     """
     There are no good reliable sources for data science news that work with
     newspaper. Therefore, we steal popular tweets and rewrite the title.
     """
-    tweets = api.search("big data" + ' :)')
-    links = re.compile(r"(http://[^ ]+)")
+    # :) is a special twitter keyword to get 'positive' tweets.
+    topic = random.choice(keywords)
+    tweets = api.search(topic)
     for tweet in tweets:
-        match = re.search(links, tweet.text)
-        if match:
-            url = bitly.shorten(match.group(0))['url']
+        if tweet.entities['urls']:
+            url = tweet.entities['urls'][0]['expanded_url']
             try:
                 article = lxml.html.parse(url)
-                title = article.find(".//title").text
-                tweet = "%s %s" % (title[:100] + "... ", url)
-                print(tweet, len(tweet))
+            except OSError as e:
+                print(e)
+                continue
+            try:
+                short_url = bitly.shorten(url)
+            except bitly_api.bitly_api.BitlyError:
+                short_url = url  # We'll lose track of stats but whatever.
+            title = article.find(".//title").text
+            tweet = "%s %s" % (title[:100] + "... ", short_url)
+            try:
                 api.update_status(status=tweet)
+            except tweepy.error.TweepError:
+                print('Posted too much already !')
                 break
-            except:
-                print('Failed %s' % url)
+            print('Tweeted : %s' % tweet)
+            break
 
 
 def random_action(api):
@@ -96,15 +109,17 @@ if __name__ == '__main__':
     else:
         prospect_list = get_prospect_list(api, refresh=True)
         while i < number:
-            tweets = api.user_timeline(random.choice(prospect_list), count=15)
+            prospect = random.choice(prospect_list)
+            tweets = api.user_timeline(prospect, count=15)
             chosen_tweet = choose_tweet(api, tweets, keywords)
-            # Sometimes no_retweet is specified.
+            # Sometimes no_retweet is specified or we already retweeted it.
             try:
                 if chosen_tweet:
                     action = random_action(api)
                     action(chosen_tweet)
                     i += 1
-                    print("Action %s taken" % i)
+                    print('We acted on tweet %s from user %s.' % (chosen_tweet,
+                                                                  prospect))
             except tweepy.error.TweepError:
-                print('Tweet number %s is not retweetable' % chosen_tweet)
+                print('Tweet number %s is already retweeted' % chosen_tweet)
                 continue
