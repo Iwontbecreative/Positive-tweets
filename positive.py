@@ -26,7 +26,7 @@ def preprocess(tweet):
     return tweet
 
 
-def check_on_topic(tweet, keywords):
+def check_topic(tweet, keywords):
     """
     Checks whether some text is on the right topic
     """
@@ -68,8 +68,9 @@ def is_prospect(author, topic, about_topic=0.15):
         print("Too many requests")
         return
     # This is quite stringent, only about 5% of users pass the test with our
-    # default keywords
-    return len([True for t in tweets if check_on_topic(t, topic)]) > about_topic * len(tweets)
+    # default keywords. We add minimum tweets length to make sure we don't add
+    # people whose first tweet is randomly about big data.
+    return len([True for t in tweets if check_topic(t, topic)]) > about_topic * len(tweets) and len(tweets) > 5
 
 
 def follow(author_id):
