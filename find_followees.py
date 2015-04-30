@@ -22,6 +22,7 @@ class Listener(tweepy.StreamListener):
     of tweets.
     """
     i = 0
+    users_added = []
 
     def __init__(self, number):
         """
@@ -38,13 +39,15 @@ class Listener(tweepy.StreamListener):
             self.i += 1
             author_id = tweet['user']['id']
             if positive.check_pos(tweet['text']):
-                print('%s Went through first stage' % self.i)
                 if positive.is_prospect(author_id, keywords):
+                    self.users_added.append(author_id)
                     positive.follow(author_id)
-                    print('We followed : %s' % author_id)
         else:
             # FIXME : Ugly.
-            print("Recovered and processed %s tweets" % self.i)
+            print("Processed %s tweets" % self.i)
+            print("Added %s users : " % len(self.users_added))
+            for user in self.users_added:
+                print(user)
             sys.exit(0)
 
     def on_error(self, status):

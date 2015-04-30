@@ -95,7 +95,7 @@ class prospect_map(nx.DiGraph):
 
 if __name__ == '__main__':
     api = tweepy.API(positive.setup_auth())
-    pm = prospect_map(api, workaround=3)
+    pm = prospect_map(api, workaround=4)
     pm.construct_nodes()
     pm.construct_edges()
     print(""" We follow {fol} accounts, have {fri} followers,

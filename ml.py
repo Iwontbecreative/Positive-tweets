@@ -89,5 +89,10 @@ if supervised:
     tweets = [tweet for sublist in tweet_dicts for tweet in sublist]
     ds = df(tweets)
 
-    ds = ds[['user', 'text', 'created_at', 'lang', 'retweet_count']]
-    ds.head()
+    ds = ds[['id', 'user', 'text', 'created_at', 'lang', 'retweet_count',
+             'favorite_count', 'retweeted_status', 'entities']]
+
+    # Improving data :
+    ds.user = ds.user.apply(lambda i: i.id)
+    ds.text = ds.text.apply(lambda t: len(t))  # No better option so far.
+

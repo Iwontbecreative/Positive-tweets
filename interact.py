@@ -50,7 +50,6 @@ def create_tweet(api, bitly, keywords):
     There are no good reliable sources for data science news that work with
     newspaper. Therefore, we steal popular tweets and rewrite the title.
     """
-    # :) is a special twitter keyword to get 'positive' tweets.
     topic = random.choice(keywords)
     tweets = api.search(topic)
     for tweet in tweets:
